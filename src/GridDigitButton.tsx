@@ -1,10 +1,9 @@
-import { Button, Grid } from '@mui/material';
-import React from 'react';
+import { Button, Grid } from "@mui/material";
 
 interface GridDigitButtonProps {
   digit: string;
   enterDigit: (digit: string) => void;
-  xs: number;
+  xs?: number;
 }
 
 export const GridDigitButton: React.FC<GridDigitButtonProps> = ({
