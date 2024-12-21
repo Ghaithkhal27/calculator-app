@@ -1,26 +1,24 @@
 import { createTheme } from "@mui/material";
-import { purple } from "@mui/material/colors";
 
-const theme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: { main: "#fff149" },
-    secondary : purple
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 25,
-        },
+
+
+
+
+
+export const theme=createTheme({
+    palette: {
+     primary: {
+         main: "#47663B", // Green color for primary elements
+         contrastText: "#ffffff", // Text color on primary background
       },
-    },
-  },
-  typography: {
-    button: {
-      fontSize: "1rem",
-    },
-  },
-});
+      secondary: {
+        main: "#ff5722", // Orange for secondary elements
+      },
+      background: {
+        default: "#f5f5f5", // Light gray background for the app
+      },
+    }
+})
 
-export default theme;
+
+ 

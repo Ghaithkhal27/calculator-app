@@ -1,195 +1,144 @@
+import { OperationButton } from "./operationButton";
+import Numberbutton from "./numberbutton";
+import { Grid, Typography, Box } from "@mui/material";
 import { useState } from "react";
-import { Button, Container, Grid, Paper, styled, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
-import { GridDigitButton } from "./GridDigitButton";
-import { GridOperationButton } from "./GridOperationButton";
-
-const OutputContainer = styled(`div`)(({ theme }) => ({
-  width: "100%",
-  textAlign: "right",
-  height: "2em",
-  padding: theme.spacing(2),
-  fontSize: "3em",
-  overflow: "hidden",
-}));
-
-const CalculatorBase = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  marginTop: theme.spacing(4),
-  borderRadius: 15,
-}));
 
 function App() {
-  const [prevValue, setPrevValue] = useState("");
-  const [currentValue, setCurrentValue] = useState("0");
-  const [operation, setOperation] = useState("");
-  const [overwrite, setOverwrite] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const [curetValue, setcuretValue] = useState<string>("0");
+  const [preValue, setpreValue] = useState(0);
+  const [lastoperation, setlastoperation] = useState<string | null>(null);
 
-  const theme = createTheme({
-    palette: {
-      mode: darkMode ? 'dark' : 'light',
-    },
-  });
-
-  const equals = () => {
-    const val = calculate();
-    setCurrentValue(`${val}`);
-    setPrevValue("");
-    setOperation("");
-    setOverwrite(true);
-  };
-
-  const calculate = () => {
-    if (!prevValue || !operation) return currentValue;
-
-    const curr = parseFloat(currentValue);
-    const prev = parseFloat(prevValue);
-
-    console.log("curr", curr);
-    console.log("prev", prev);
-    let result;
-    switch (operation) {
-      case "÷":
-        result = prev / curr;
-        break;
-      case "*":
-        result = prev * curr;
-        break;
-      case "-":
-        result = prev - curr;
-        break;
-      case "+":
-        result = prev + curr;
-        break;
+  const handelcuretValue = (num: string) => {
+    if (num === ".") {
+      if (!curetValue.includes(".")) {
+        setcuretValue(curetValue + num);
+      }
+    } else {
+      if (curetValue === "0" && num !== ".") {
+        setcuretValue(num);
+        return;
+      }
+      setcuretValue(curetValue + num);
     }
-    console.log("result", result);
-    return result;
   };
 
-  const clear = () => {
-    setPrevValue("");
-    setOperation("");
-    setCurrentValue("0");
-    setOverwrite(true);
+  const clearOperation = () => {
+    setcuretValue("0");
   };
 
-  const del = () => {
-    setCurrentValue("0");
-    setOverwrite(true);
+  const handelOpreration = (operation: string) => {
+    setpreValue(parseFloat(curetValue));
+    setcuretValue("0");
+    setlastoperation(operation);
+  };
+
+  const calculation = () => {
+    const currentValue = parseFloat(curetValue);
+
+    if (lastoperation === "/" && currentValue === 0) {
+      alert("Division by zero is not allowed");
+      return;
+    }
+
+    if (lastoperation === "+") {
+      setcuretValue((currentValue + preValue).toString());
+    } else if (lastoperation === "-") {
+      setcuretValue((preValue - currentValue).toString());
+    } else if (lastoperation === "*") {
+      setcuretValue((currentValue * preValue).toString());
+    } else if (lastoperation === "/") {
+      setcuretValue((preValue / currentValue).toString());
+    }
   };
 
   const percent = () => {
-    const curr = parseFloat(currentValue);
-    setCurrentValue((curr / 100).toString());
-  };
-
-  const selectOperation = (x: string) => {
-    if (prevValue) {
-      const val = calculate();
-      setCurrentValue(`${val}`);
-      setPrevValue(`${val}`);
-    } else {
-      setPrevValue(currentValue);
-    }
-    setOperation(x);
-    setOverwrite(true);
-  };
-
-  const setDigit = (digit: string) => {
-    if (currentValue[0] === "0" && digit === "0") return;
-    if (currentValue.includes(".") && digit === ".") return;
-
-    if (overwrite && digit !== ".") {
-      setCurrentValue(digit);
-    } else {
-      setCurrentValue(`${currentValue}${digit}`);
-    }
-    setOverwrite(false);
-  };
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    setcuretValue((parseFloat(curetValue) / 100).toString());
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="sm">
-        <Button onClick={toggleDarkMode} variant="contained" color="primary" style={{ marginBottom: '1em' }}>
-          Toggle {darkMode ? 'Light' : 'Dark'} Mode
-        </Button>
-        <CalculatorBase elevation={3}>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <OutputContainer data-testid="output">
-                {currentValue}
-              </OutputContainer>
-            </Grid>
-            <Grid item container columnSpacing={1}>
-              <GridOperationButton
-                operation={"AC"}
-                selectOperation={clear}
-                selectedOperation={operation}
-              />
-              <GridOperationButton
-                operation={"C"}
-                selectOperation={del}
-                selectedOperation={operation}
-              />
-              <GridOperationButton
-                operation={"%"}
-                selectOperation={percent}
-                selectedOperation={operation}
-              />
-              <GridOperationButton
-                operation={"÷"}
-                selectOperation={selectOperation}
-                selectedOperation={operation}
-              />
-            </Grid>
-            <Grid item container columnSpacing={1}>
-              <GridDigitButton digit={"7"} enterDigit={setDigit} />
-              <GridDigitButton digit={"8"} enterDigit={setDigit} />
-              <GridDigitButton digit={"9"} enterDigit={setDigit} />
-              <GridOperationButton
-                operation={"*"}
-                selectOperation={selectOperation}
-                selectedOperation={operation}
-              />
-            </Grid>
-            <Grid item container columnSpacing={1}>
-              <GridDigitButton digit={"4"} enterDigit={setDigit} />
-              <GridDigitButton digit={"5"} enterDigit={setDigit} />
-              <GridDigitButton digit={"6"} enterDigit={setDigit} />
-              <GridOperationButton
-                operation={"-"}
-                selectOperation={selectOperation}
-                selectedOperation={operation}
-              />
-            </Grid>
-            <Grid item container columnSpacing={1}>
-              <GridDigitButton digit={"1"} enterDigit={setDigit} />
-              <GridDigitButton digit={"2"} enterDigit={setDigit} />
-              <GridDigitButton digit={"3"} enterDigit={setDigit} />
-              <GridOperationButton
-                operation={"+"}
-                selectOperation={selectOperation}
-                selectedOperation={operation}
-              />
-            </Grid>
-            <Grid item container columnSpacing={1}>
-              <GridDigitButton xs={6} digit={"0"} enterDigit={setDigit} />
-              <GridDigitButton digit={"."} enterDigit={setDigit} />
-              <Grid item xs={3}>
-                <Button fullWidth variant="contained" onClick={equals}>
-                  =
-                </Button>
-              </Grid>
-            </Grid>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      bgcolor="#e0e0e0"
+    >
+      <Box
+        width={350}
+        padding={2}
+        bgcolor="#fff"
+        boxShadow="0px 4px 10px rgba(0, 0, 0, 0.1)"
+        borderRadius="10px"
+      >
+        {/* Display */}
+        <Typography
+          variant="h4"
+          textAlign="right"
+          padding="20px"
+          border="1px solid #ccc"
+          borderRadius="5px"
+          bgcolor="#f9f9f9"
+          marginBottom="10px"
+        >
+          {curetValue}
+        </Typography>
+
+        {/* Buttons */}
+        <Grid container spacing={1}>
+          {/* Row 1: Special Operations */}
+          <Grid item xs={3}>
+            <OperationButton operation="%" Selector={percent} />
           </Grid>
-        </CalculatorBase>
-      </Container>
-    </ThemeProvider>
+          <Grid item xs={3}>
+            <OperationButton operation="C" Selector={clearOperation} />
+          </Grid>
+          <Grid item xs={3}>
+            <OperationButton operation="/" Selector={handelOpreration} />
+          </Grid>
+          <Grid item xs={3}>
+            <OperationButton operation="*" Selector={handelOpreration} />
+          </Grid>
+
+          {/* Row 2: Numbers 7-9 and "-" */}
+          {[7, 8, 9].map((num) => (
+            <Grid item xs={3} key={num}>
+              <Numberbutton num={num.toString()} onClick={handelcuretValue} />
+            </Grid>
+          ))}
+          <Grid item xs={3}>
+            <OperationButton operation="-" Selector={handelOpreration} />
+          </Grid>
+
+          {/* Row 3: Numbers 4-6 and "+" */}
+          {[4, 5, 6].map((num) => (
+            <Grid item xs={3} key={num}>
+              <Numberbutton num={num.toString()} onClick={handelcuretValue} />
+            </Grid>
+          ))}
+          <Grid item xs={3}>
+            <OperationButton operation="+" Selector={handelOpreration} />
+          </Grid>
+
+          {/* Row 4: Numbers 1-3 */}
+          {[1, 2, 3].map((num) => (
+            <Grid item xs={3} key={num}>
+              <Numberbutton num={num.toString()} onClick={handelcuretValue} />
+            </Grid>
+          ))}
+
+          {/* Row 5: Zero, ".", "=" */}
+          <Grid item xs={6}>
+            <Numberbutton num="0" onClick={handelcuretValue} />
+          </Grid>
+          <Grid item xs={3}>
+            <Numberbutton num="." onClick={handelcuretValue} />
+          </Grid>
+          <Grid item xs={3}>
+            <OperationButton operation="=" Selector={calculation} />
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
   );
 }
 
